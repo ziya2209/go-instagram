@@ -1,0 +1,9 @@
+curl -X POST http://localhost:8080/createAccount \
+  -H "Content-Type: application/json" \
+  -d '{
+    "Name": "John Doe",
+    "Age": 25,
+    "Email": "john.doe@example.com",
+    "Password": "secure_password123",
+    "Bio": "Software developer with a passion for photography",
+  }'

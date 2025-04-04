@@ -1,0 +1,9 @@
+Dependency Injection (DI) is a design pattern that manages dependencies in a software system.
+Instead of a class/structure/function creating its own dependencies, they are provided from the outside.
+This promotes loose coupling, making code more modular, testable, and maintainable.
+
+Types of DI:
+Constructor Injection – Dependencies are passed via the constructor.
+Setter Injection – Dependencies are set using setter methods.
+Interface Injection – Dependencies are injected through an interface.
+Commonly used in frameworks like Spring (Java) and Angular (JavaScript).
