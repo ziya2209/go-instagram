@@ -6,7 +6,8 @@ import (
 
 type InstaHandler interface {
 	// PostGetComments will return all the comments for the given post id
-	// in nested format
+	// in nested form
+	Health(http.ResponseWriter, *http.Request)
 	PostGetComments(http.ResponseWriter, *http.Request)
 	ShowHomePage(http.ResponseWriter, *http.Request)
 	CreatePost(http.ResponseWriter, *http.Request)
