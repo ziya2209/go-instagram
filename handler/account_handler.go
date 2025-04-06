@@ -2,12 +2,14 @@ package handler
 
 import (
 	"encoding/json"
+	"instagram/dto"
 	"instagram/models"
 	"instagram/repo"
 	"net/http"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
-// Implementation of InstaHandler
 type instaHandler struct {
 	userRepo repo.UserRepo
 }
@@ -22,9 +24,9 @@ func NewInstaHandler(ur repo.UserRepo) InstaHandler {
 
 // CreateAcc handles the creation of a new user account
 func (h *instaHandler) CreateAcc(w http.ResponseWriter, r *http.Request) {
-	// Parse user data from request
-	var user models.User
-	err := json.NewDecoder(r.Body).Decode(&user)
+	// Parse createUserReq data from request
+	var createUserReq dto.CreateUserRequest
+	err := json.NewDecoder(r.Body).Decode(&createUserReq)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]string{
@@ -34,7 +36,7 @@ func (h *instaHandler) CreateAcc(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Validate required fields
-	if user.Name == "" || user.Email == "" || user.Password == "" {
+	if createUserReq.Username == "" || createUserReq.Email == "" || createUserReq.Password == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]string{
 			"error": "Name, email and password are required",
@@ -42,8 +44,26 @@ func (h *instaHandler) CreateAcc(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Hash the password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(createUserReq.Password), bcrypt.DefaultCost)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": "Failed to process password",
+		})
+		return
+	}
+
 	// Create user in database
-	err = h.userRepo.Create(&user)
+	user := &models.User{
+		Username:     createUserReq.Username,
+		Email:        createUserReq.Email,
+		PasswordHash: string(hashedPassword),
+		Age:          createUserReq.Age,
+		Bio:          createUserReq.Bio,
+	}
+
+	err = h.userRepo.Create(user)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(map[string]string{
