@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: instagram-clone-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=password
+      - DB_NAME=instagram_clone
+    volumes:
+      - .:/app
+    restart: always
+    networks:
+      - instagram-network
+
+  mysql:
+    image: mysql:8.0
+    container_name: instagram-clone-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=instagram_clone
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+    volumes:
+      - mysql-data:/var/lib/mysql
+    restart: always
+    networks:
+      - instagram-network
+
+volumes:
+  mysql-data:
+
+networks:
+  instagram-network:
+    driver: bridge
