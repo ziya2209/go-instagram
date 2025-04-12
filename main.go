@@ -3,6 +3,7 @@ package main
 import (
 	"instagram/database"
 	"instagram/handler"
+	"instagram/middleware"
 	"instagram/repo"
 	"net/http"
 
@@ -16,6 +17,8 @@ func main() {
 	instahandler := handler.NewInstaHandler(ur)
 
 	router := mux.NewRouter()
+	router.Use(middleware.Logger)
+
 	router.HandleFunc("/health", instahandler.Health).Methods("GET")
 
 	router.HandleFunc("/addComment/post", instahandler.AddComment).Methods("POST")
