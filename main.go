@@ -17,6 +17,9 @@ func main() {
 	instahandler := handler.NewInstaHandler(ur)
 
 	router := mux.NewRouter()
+
+	router.Use(middleware.CORS)
+	router.Use(middleware.ContextUpdater)
 	router.Use(middleware.Logger)
 
 	router.HandleFunc("/health", instahandler.Health).Methods("GET")
