@@ -3,6 +3,7 @@ module instagram
 go 1.19
 
 require (
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gorilla/mux v1.8.1
 	gorm.io/driver/mysql v1.5.7
 	gorm.io/gorm v1.25.12

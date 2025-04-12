@@ -3,6 +3,7 @@ package main
 import (
 	"instagram/database"
 	"instagram/handler"
+	"instagram/middleware"
 	"instagram/repo"
 	"net/http"
 
@@ -13,10 +14,14 @@ func main() {
 	db := database.DB()
 	ur := repo.NewUserRepo(db)
 
+	secretKey := "secret"
+
 	instahandler := handler.NewInstaHandler(ur)
 
 	router := mux.NewRouter()
 	router.HandleFunc("/health", instahandler.Health).Methods("GET")
+
+	router.Handle("/protected", middleware.JWTAuthMiddleware(secretKey)(http.HandlerFunc(instahandler.Health))).Methods("GET")
 
 	router.HandleFunc("/addComment/post", instahandler.AddComment).Methods("POST")
 	router.HandleFunc("/addComment/comment", instahandler.AddComment).Methods("POST")
