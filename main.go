@@ -11,7 +11,10 @@ import (
 )
 
 func main() {
-	db := database.DB()
+	db, err := database.DB()
+	if err != nil {
+		panic(err)
+	}
 	ur := repo.NewUserRepo(db)
 
 	instahandler := handler.NewInstaHandler(ur)
@@ -23,6 +26,7 @@ func main() {
 	router.Use(middleware.Logger)
 
 	router.HandleFunc("/health", instahandler.Health).Methods("GET")
+	router.HandleFunc("/createAccount", instahandler.CreateAcc).Methods("POST")
 
 	protected := router.NewRoute().Subrouter()
 
@@ -30,7 +34,6 @@ func main() {
 
 	protected.HandleFunc("/addComment/post", instahandler.AddComment).Methods("POST")
 	protected.HandleFunc("/addComment/comment", instahandler.AddComment).Methods("POST")
-	protected.HandleFunc("/createAccount", instahandler.CreateAcc).Methods("POST")
 	protected.HandleFunc("/createPost", instahandler.CreatePost).Methods("POST")
 	protected.HandleFunc("/login", instahandler.Login).Methods("POST")
 	protected.HandleFunc("/likePost", instahandler.LikePost).Methods("POST")
