@@ -9,7 +9,8 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     environment:
       - DB_HOST=mysql
       - DB_PORT=3306
@@ -33,11 +34,17 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
     restart: always
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "--password=password" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     networks:
       - instagram-network
 
 volumes:
   mysql-data:
+
 
 networks:
   instagram-network:
