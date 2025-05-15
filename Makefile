@@ -39,7 +39,7 @@ redeploy:
 	docker-compose up -d
 
 # Redeploy only the app service (faster for code changes)
-redeploy-app:
+ra:
 	docker-compose stop app
 	docker-compose rm -f app
 	docker-compose build app

@@ -29,17 +29,19 @@ func DB() (*gorm.DB, error) {
 		maxRetries := 5
 		retryInterval := time.Second * 5
 
-		dsn := fmt.Sprintf(
+		dns := fmt.Sprintf(
 			"%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-			os.Getenv("DB_USER"),
+			os.Getenv("DB_USER"), // there must be an environment variable called DB_USER, get me the value from the operating system.
 			os.Getenv("DB_PASSWORD"),
 			os.Getenv("DB_HOST"),
 			os.Getenv("DB_PORT"),
 			os.Getenv("DB_NAME"),
 		)
 
+		log.Printf("Mysql Server Address: %q", dns)
+
 		for i := 0; i < maxRetries; i++ {
-			dbInstance, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+			dbInstance, err = gorm.Open(mysql.Open(dns), &gorm.Config{})
 			if err == nil {
 				break
 			}

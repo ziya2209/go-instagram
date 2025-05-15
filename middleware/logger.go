@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"time"
 )
-
 // Logger is a middleware handler that logs HTTP requests
 func Logger(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

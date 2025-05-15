@@ -27,6 +27,7 @@ func main() {
 
 	router.HandleFunc("/health", instahandler.Health).Methods("GET")
 	router.HandleFunc("/createAccount", instahandler.CreateAcc).Methods("POST")
+	router.HandleFunc("/getUser", instahandler.GetAllUser).Methods("GET")
 
 	protected := router.NewRoute().Subrouter()
 

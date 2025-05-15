@@ -7,3 +7,13 @@ type CreateUserRequest struct {
 	Age      int    `json:"age" validate:"required,min=12"`
 	Bio      string `json:"bio" validate:"required"`
 }
+ type UserDetailsResponse struct {
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Age      int    `json:"age"`
+	Bio      string `json:"bio"`
+}
+
+type LikePostRequest struct {
+	PostId int `json:"post_id" validate:"required"`
+}
