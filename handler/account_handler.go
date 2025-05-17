@@ -45,8 +45,8 @@ func (h *instaHandler) CreateAcc(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Hash the password
-	hashedPassword, shouldReturn := gethash(createUserReq.Password, w)
-	if shouldReturn {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(createUserReq.Password), bcrypt.DefaultCost)
+	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)		
 		json.NewEncoder(w).Encode(map[string]string{
 			"error": "Failed to hash password",
@@ -58,7 +58,7 @@ func (h *instaHandler) CreateAcc(w http.ResponseWriter, r *http.Request) {
 	user := &models.User{
 		Username:     createUserReq.Username,
 		Email:        createUserReq.Email,
-		PasswordHash: hashedPassword,
+		PasswordHash: string(hashedPassword),
 		Age:          createUserReq.Age,
 		Bio:          createUserReq.Bio,
 	}
@@ -87,17 +87,6 @@ func (h *instaHandler) CreateAcc(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func gethash(password string, w http.ResponseWriter) (string, bool) {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{
-			"error": "Failed to process password",
-		})
-		return "", true
-	}
-	return string(hashedPassword), false
-}
 
 
 
