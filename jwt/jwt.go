@@ -54,5 +54,9 @@ func VerifyToken(tokenString string) (bool, error) {
 		}
 		return []byte(secretKey), nil
 	})
-	return token.Valid, err
+	if err != nil {
+		
+		return false, err
+	}
+	return token.Valid, nil
 }

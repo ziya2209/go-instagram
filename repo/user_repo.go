@@ -10,6 +10,7 @@ import (
 type UserRepo interface {
 	Create(user *models.User) error
 	GetById(id int) (*models.User, error)
+	GetByUsername(username string) (*models.User, error)
 	Update(user *models.User) error
 	Delete(id int) error
 	GetAll() ([]*models.User, error)
@@ -43,6 +44,14 @@ func (r *gormUserRepo) GetById(id int) (*models.User, error) {
 	return &user, nil
 }
 
+func (r *gormUserRepo) GetByUsername(username string) (*models.User, error) {
+	var user models.User
+	if err := r.DB.Where("username = ?", username).First(&user).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
 func (r *gormUserRepo) Update(user *models.User) error {
 	return r.DB.Save(user).Error
 }
@@ -57,5 +66,7 @@ func (r *gormUserRepo) GetAll() ([]*models.User, error) {
 	}
 	return users, nil
 }
+
+
 
 

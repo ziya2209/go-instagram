@@ -45,11 +45,11 @@ func (h *instaHandler) CreateAcc(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Hash the password
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(createUserReq.Password), bcrypt.DefaultCost)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+	hashedPassword, shouldReturn := gethash(createUserReq.Password, w)
+	if shouldReturn {
+		w.WriteHeader(http.StatusInternalServerError)		
 		json.NewEncoder(w).Encode(map[string]string{
-			"error": "Failed to process password",
+			"error": "Failed to hash password",
 		})
 		return
 	}
@@ -58,7 +58,7 @@ func (h *instaHandler) CreateAcc(w http.ResponseWriter, r *http.Request) {
 	user := &models.User{
 		Username:     createUserReq.Username,
 		Email:        createUserReq.Email,
-		PasswordHash: string(hashedPassword),
+		PasswordHash: hashedPassword,
 		Age:          createUserReq.Age,
 		Bio:          createUserReq.Bio,
 	}
@@ -87,33 +87,19 @@ func (h *instaHandler) CreateAcc(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (h *instaHandler)GetAllUser(w http.ResponseWriter, r *http.Request) {	
-	// Fetch all users from the database
-	users, err := h.userRepo.GetAll()
+func gethash(password string, w http.ResponseWriter) (string, bool) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(map[string]string{
-			"error": "Failed to fetch users",
+			"error": "Failed to process password",
 		})
-		return
+		return "", true
 	}
-	
-
-	// Return the list of users
-	w.WriteHeader(http.StatusOK)
-	w.Header().Set("Content-Type", "application/json")
-  udr := make([]dto.UserDetailsResponse, len(users))
-	for i, user := range users {
-		udr[i] = dto.UserDetailsResponse{
-			Username: user.Username,
-			Email:    user.Email,
-			Age:      user.Age,
-			Bio:      user.Bio,
-		}
-	}
-	json.NewEncoder(w).Encode(udr)
-
+	return string(hashedPassword), false
 }
+
+
 
 // Placeholder implementations for other required methods
 func (h *instaHandler) PostGetComments(w http.ResponseWriter, r *http.Request) {}
@@ -121,4 +107,4 @@ func (h *instaHandler) ShowHomePage(w http.ResponseWriter, r *http.Request)    {
 func (h *instaHandler) CreatePost(w http.ResponseWriter, r *http.Request)      {}
 func (h *instaHandler) AddComment(w http.ResponseWriter, r *http.Request)      {}
 func (h *instaHandler) LikePost(w http.ResponseWriter, r *http.Request)        {}
-func (h *instaHandler) Login(w http.ResponseWriter, r *http.Request)           {}
+
