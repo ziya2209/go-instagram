@@ -17,3 +17,10 @@ type CreateUserRequest struct {
 type LikePostRequest struct {
 	PostId int `json:"post_id" validate:"required"`
 }
+type LoginRequest struct {
+	Username string `json:"username" validate:"required"`
+	Password string `json:"password" validate:"required"`
+}
+type LoginResponse struct {
+	Token string `json:"token"`
+}

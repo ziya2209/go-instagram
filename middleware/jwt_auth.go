@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/dgrijalva/jwt-go"
+	"instagram/jwt"
 )
 
 var secretKey = "secret"
@@ -29,15 +29,8 @@ func JWTAuthMiddleware(next http.Handler) http.Handler {
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 
 		// Parse and validate the token
-		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			// Ensure the signing method is HMAC
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, http.ErrAbortHandler
-			}
-			return []byte(secretKey), nil
-		})
-
-		if err != nil || !token.Valid {
+		token, err := jwt.VerifyToken(tokenString)
+		if err != nil || !token {		
 			http.Error(w, "Invalid or expired token", http.StatusUnauthorized)
 			return
 		}

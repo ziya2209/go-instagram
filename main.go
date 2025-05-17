@@ -27,16 +27,18 @@ func main() {
 
 	router.HandleFunc("/health", instahandler.Health).Methods("GET")
 	router.HandleFunc("/createAccount", instahandler.CreateAcc).Methods("POST")
-	router.HandleFunc("/getUser", instahandler.GetAllUser).Methods("GET")
+	router.HandleFunc("/login", instahandler.Login).Methods("POST")
+	
 
 	protected := router.NewRoute().Subrouter()
 
 	protected.Use(middleware.JWTAuthMiddleware)
+	protected.HandleFunc("/getUser", instahandler.GetAllUser).Methods("GET")
+
 
 	protected.HandleFunc("/addComment/post", instahandler.AddComment).Methods("POST")
 	protected.HandleFunc("/addComment/comment", instahandler.AddComment).Methods("POST")
 	protected.HandleFunc("/createPost", instahandler.CreatePost).Methods("POST")
-	protected.HandleFunc("/login", instahandler.Login).Methods("POST")
 	protected.HandleFunc("/likePost", instahandler.LikePost).Methods("POST")
 	protected.HandleFunc("/home", instahandler.ShowHomePage).Methods("GET")
 	protected.HandleFunc("/post/comments", instahandler.PostGetComments).Methods("GET")
