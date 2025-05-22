@@ -6,10 +6,8 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-
-
-
 var secretKey = "secret"
+
 func NewToken(username string) (string, error) {
 	// Create a new token object
 	token := jwt.New(jwt.SigningMethodHS256)
@@ -26,7 +24,9 @@ func NewToken(username string) (string, error) {
 
 	return tokenString, nil
 }
-func GetUsernameFromToken(tokenString string) (string, error) {
+func GetUsernameFromRequest(r *http.Request) (string, error) {
+	tokenString := r.Header.Get("Authorization")[7:] // Remove "Bearer " prefix
+
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		// Ensure the signing method is HMAC
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -55,7 +55,7 @@ func VerifyToken(tokenString string) (bool, error) {
 		return []byte(secretKey), nil
 	})
 	if err != nil {
-		
+
 		return false, err
 	}
 	return token.Valid, nil

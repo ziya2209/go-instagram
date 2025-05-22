@@ -24,3 +24,7 @@ type LoginRequest struct {
 type LoginResponse struct {
 	Token string `json:"token"`
 }
+type CreatePostRequest struct {
+	Caption string `json:"caption" validate:"required"`
+	Url     string `json:"url" validate:"required"`
+}

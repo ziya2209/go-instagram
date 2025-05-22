@@ -16,8 +16,9 @@ func main() {
 		panic(err)
 	}
 	ur := repo.NewUserRepo(db)
+	pr := &repo.GormPostRepo{DB: db}
 
-	instahandler := handler.NewInstaHandler(ur)
+	instahandler := handler.NewInstaHandler(ur, pr)
 
 	router := mux.NewRouter()
 
@@ -28,13 +29,11 @@ func main() {
 	router.HandleFunc("/health", instahandler.Health).Methods("GET")
 	router.HandleFunc("/createAccount", instahandler.CreateAcc).Methods("POST")
 	router.HandleFunc("/login", instahandler.Login).Methods("POST")
-	
 
 	protected := router.NewRoute().Subrouter()
 
 	protected.Use(middleware.JWTAuthMiddleware)
 	protected.HandleFunc("/getUser", instahandler.GetAllUser).Methods("GET")
-
 
 	protected.HandleFunc("/addComment/post", instahandler.AddComment).Methods("POST")
 	protected.HandleFunc("/addComment/comment", instahandler.AddComment).Methods("POST")

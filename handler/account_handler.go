@@ -12,13 +12,14 @@ import (
 
 type instaHandler struct {
 	userRepo repo.UserRepo
+	postRepo repo.PostRepo
 }
 
 // NewInstaHandler creates a new instance of InstaHandler
-func NewInstaHandler(ur repo.UserRepo) InstaHandler {
-	// In a real implementation, you would inject the repository here
+func NewInstaHandler(ur repo.UserRepo, pr repo.PostRepo) InstaHandler {
 	return &instaHandler{
 		userRepo: ur,
+		postRepo: pr,
 	}
 }
 
@@ -47,7 +48,7 @@ func (h *instaHandler) CreateAcc(w http.ResponseWriter, r *http.Request) {
 	// Hash the password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(createUserReq.Password), bcrypt.DefaultCost)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)		
+		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(map[string]string{
 			"error": "Failed to hash password",
 		})
@@ -87,13 +88,8 @@ func (h *instaHandler) CreateAcc(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-
-
-
 // Placeholder implementations for other required methods
 func (h *instaHandler) PostGetComments(w http.ResponseWriter, r *http.Request) {}
 func (h *instaHandler) ShowHomePage(w http.ResponseWriter, r *http.Request)    {}
-func (h *instaHandler) CreatePost(w http.ResponseWriter, r *http.Request)      {}
 func (h *instaHandler) AddComment(w http.ResponseWriter, r *http.Request)      {}
 func (h *instaHandler) LikePost(w http.ResponseWriter, r *http.Request)        {}
-
