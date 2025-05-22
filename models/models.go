@@ -9,5 +9,6 @@ func init() {
 		&Like{},
 		&Follow{},
 		&Message{},
+		&Post{},
 	)
 }
