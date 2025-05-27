@@ -18,7 +18,7 @@ func (h *instaHandler) Follow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Assuming the user ID is stored in the context
-	userID, ok := r.Context().Value("userID").(int)
+	username, ok := r.Context().Value("username").(string)
 	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(w).Encode(map[string]string{
@@ -34,6 +34,15 @@ func (h *instaHandler) Follow(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+	// Get the user ID of the current user
+	 user, err := h.userRepo.GetByUsername(username)
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": "Unauthorized",
+		})
+		return
+	}
 
 	// Get the user ID of the user to be followed
 	followedUser, err := h.userRepo.GetByUsername(fr.Username)
@@ -45,7 +54,7 @@ func (h *instaHandler) Follow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Check if the user is trying to follow themselves
-	if followedUser.Id == userID {
+	if followedUser.Id == user.Id {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]string{
 			"error": "You cannot follow yourself",
@@ -53,7 +62,7 @@ func (h *instaHandler) Follow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Call the follow repository to follow the user
-	err = h.followRepo.FollowUser(userID, followedUser.Id)
+	err = h.followRepo.FollowUser(user.Id, followedUser.Id)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(map[string]string{

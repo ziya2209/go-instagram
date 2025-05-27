@@ -19,9 +19,10 @@ const (
 	// RequestIDKey is the key for the request ID in the context
 	RequestIDKey ContextKey = "requestID"
 )
+
 func withUserName(r *http.Request) *http.Request {
 	ctx := r.Context()
-	username, _ := jwt.GetUsernameFromRequest(r)
+	username, _ := jwt.GetUsernameFromHeader(r)
 
 	ctx = context.WithValue(ctx, "username", username)
 	return r.WithContext(ctx)

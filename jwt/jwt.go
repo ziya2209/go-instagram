@@ -24,7 +24,7 @@ func NewToken(username string) (string, error) {
 
 	return tokenString, nil
 }
-func GetUsernameFromRequest(r *http.Request) (string, error) {
+func GetUsernameFromHeader(r *http.Request) (string, error) {
 	tokenString := r.Header.Get("Authorization")[7:] // Remove "Bearer " prefix
 
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
