@@ -10,6 +10,7 @@ type FollowRepo interface {
 	Create(follow *models.Follow) error
 	GetById(id int) (*models.Follow, error)
 	Delete(id int) error
+	FollowUser(followerID int, followeeID int) error
 }
 
 type GormFollowRepo struct {
@@ -31,3 +32,10 @@ func (r *GormFollowRepo) GetById(id int) (*models.Follow, error) {
 func (r *GormFollowRepo) Delete(id int) error {
 	return r.DB.Delete(&models.Follow{}, id).Error
 }
+func (r *GormFollowRepo) FollowUser(followerID int, followedID int) error {
+	follow := &models.Follow{
+		FollowerId: followerID,
+		FollowedId: followedID,
+	}
+	return r.Create(follow)
+}	

@@ -17,8 +17,9 @@ func main() {
 	}
 	ur := repo.NewUserRepo(db)
 	pr := &repo.GormPostRepo{DB: db}
+	fr := &repo.GormFollowRepo{DB: db} // Assuming you have a follow repository
 
-	instahandler := handler.NewInstaHandler(ur, pr)
+	instahandler := handler.NewInstaHandler(ur, pr, fr)
 
 	router := mux.NewRouter()
 
@@ -34,7 +35,7 @@ func main() {
 
 	protected.Use(middleware.JWTAuthMiddleware)
 	protected.HandleFunc("/getUser", instahandler.GetAllUser).Methods("GET")
-
+	protected.HandleFunc("/follow", instahandler.Follow).Methods("POST")
 	protected.HandleFunc("/addComment/post", instahandler.AddComment).Methods("POST")
 	protected.HandleFunc("/addComment/comment", instahandler.AddComment).Methods("POST")
 	protected.HandleFunc("/createPost", instahandler.CreatePost).Methods("POST")

@@ -28,3 +28,6 @@ type CreatePostRequest struct {
 	Caption string `json:"caption" validate:"required"`
 	Url     string `json:"url" validate:"required"`
 }
+type FollowRequest struct {
+	Username string `json:"username" validate:"required"`
+}

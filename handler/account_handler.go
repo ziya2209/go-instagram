@@ -6,20 +6,23 @@ import (
 	"instagram/models"
 	"instagram/repo"
 	"net/http"
+	"strings"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
 type instaHandler struct {
-	userRepo repo.UserRepo
-	postRepo repo.PostRepo
+	userRepo   repo.UserRepo
+	postRepo   repo.PostRepo
+	followRepo repo.FollowRepo // Assuming followRepo is part of userRepo
 }
 
 // NewInstaHandler creates a new instance of InstaHandler
-func NewInstaHandler(ur repo.UserRepo, pr repo.PostRepo) InstaHandler {
+func NewInstaHandler(ur repo.UserRepo, pr repo.PostRepo, fr repo.FollowRepo) InstaHandler {
 	return &instaHandler{
-		userRepo: ur,
-		postRepo: pr,
+		userRepo:   ur,
+		postRepo:   pr,
+		followRepo: fr, // Assuming followRepo is part of userRepo
 	}
 }
 
@@ -37,10 +40,26 @@ func (h *instaHandler) CreateAcc(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Validate required fields
-	if createUserReq.Username == "" || createUserReq.Email == "" || createUserReq.Password == "" {
+	var emptyFields []string
+	createUserReq.Username = strings.TrimSpace(createUserReq.Username)
+	createUserReq.Email = strings.TrimSpace(createUserReq.Email)
+	createUserReq.Password = strings.TrimSpace(createUserReq.Password)
+
+	if createUserReq.Username == "" {
+		emptyFields = append(emptyFields, "username")
+	}
+	if createUserReq.Email == "" {
+		emptyFields = append(emptyFields, "email")
+	}
+	if createUserReq.Password == "" {
+		emptyFields = append(emptyFields, "password")
+	}
+
+	if len(emptyFields) > 0 {
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{
-			"error": "Name, email and password are required",
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"error":  "Required fields are empty",
+			"fields": emptyFields,
 		})
 		return
 	}
