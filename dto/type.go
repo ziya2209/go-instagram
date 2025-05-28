@@ -7,7 +7,7 @@ type CreateUserRequest struct {
 	Age      int    `json:"age" validate:"required,min=12"`
 	Bio      string `json:"bio" validate:"required"`
 }
- type UserDetailsResponse struct {
+type UserDetailsResponse struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
 	Age      int    `json:"age"`
@@ -30,4 +30,7 @@ type CreatePostRequest struct {
 }
 type FollowRequest struct {
 	Username string `json:"username" validate:"required"`
+}
+type FollowersResponse struct {
+	Followers []string `json:"followers"`
 }

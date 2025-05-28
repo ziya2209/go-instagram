@@ -36,6 +36,7 @@ func main() {
 	protected.Use(middleware.JWTAuthMiddleware)
 	protected.HandleFunc("/getUser", instahandler.GetAllUser).Methods("GET")
 	protected.HandleFunc("/follow", instahandler.Follow).Methods("POST")
+	protected.HandleFunc("/followers", instahandler.GetFollowers).Methods("GET")
 	protected.HandleFunc("/addComment/post", instahandler.AddComment).Methods("POST")
 	protected.HandleFunc("/addComment/comment", instahandler.AddComment).Methods("POST")
 	protected.HandleFunc("/createPost", instahandler.CreatePost).Methods("POST")

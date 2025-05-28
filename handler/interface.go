@@ -17,5 +17,5 @@ type InstaHandler interface {
 	Login(http.ResponseWriter, *http.Request)
 	GetAllUser(http.ResponseWriter, *http.Request)
 	Follow(http.ResponseWriter, *http.Request)
+	GetFollowers(http.ResponseWriter, *http.Request)
 }
-
