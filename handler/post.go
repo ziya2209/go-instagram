@@ -30,7 +30,7 @@ func (h *instaHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get username from JWT token
-	username, err := jwt.GetUsernameFromRequest(r)
+	username, err := jwt.GetUsernameFromHeader(r)
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(w).Encode(map[string]string{

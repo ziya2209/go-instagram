@@ -16,7 +16,6 @@ type InstaHandler interface {
 	CreateAcc(http.ResponseWriter, *http.Request)
 	Login(http.ResponseWriter, *http.Request)
 	GetAllUser(http.ResponseWriter, *http.Request)
+	Follow(http.ResponseWriter, *http.Request)
+	GetFollowers(http.ResponseWriter, *http.Request)
 }
-// logout api
-// get  following users
-// NewInstaHandler function is moved to account_handler.go

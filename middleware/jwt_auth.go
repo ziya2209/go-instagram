@@ -34,8 +34,8 @@ func JWTAuthMiddleware(next http.Handler) http.Handler {
 			http.Error(w, "Invalid or expired token", http.StatusUnauthorized)
 			return
 		}
+		r = withUserName(r)
 
-		// Proceed to the next handler
 		next.ServeHTTP(w, r)
 	})
 }
