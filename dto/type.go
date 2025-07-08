@@ -34,3 +34,12 @@ type FollowRequest struct {
 type FollowersResponse struct {
 	Followers []string `json:"followers"`
 }
+type LikePostResponse struct {
+	PostId int    `json:"post_id"`
+}
+type CommentRequest struct {
+	ParentId int    `json:"parent_id" validate:"required"`
+	Comment  string `json:"comment" validate:"required"`
+	ParentType string `json:"parent_type" validate:"required"` // e.g., "post" or "comment"
+}
+

@@ -16,6 +16,6 @@ func CORS(next http.Handler) http.Handler {
 	headers := handlers.AllowedHeaders([]string{"Origin", "Content-Type", "Accept", "Authorization"})
 	maxAge := handlers.MaxAge(3600)
 
-	middleware := handlers.CORS(origins, methods, headers, maxAge)
-	return middleware(next)
+	middleware := handlers.CORS(origins, methods, headers, maxAge) // return huwa function
+	return middleware(next)                                        // call hora hai jo upper return huwa function
 }

@@ -12,23 +12,26 @@ import (
 )
 
 type instaHandler struct {
-	userRepo   repo.UserRepo
-	postRepo   repo.PostRepo
-	followRepo repo.FollowRepo // Assuming followRepo is part of userRepo
+	userRepo    repo.UserRepo
+	postRepo    repo.PostRepo
+	followRepo  repo.FollowRepo
+	commentRepo repo.CommentRepo // Assuming followRepo is part of userRepo
 }
 
 // NewInstaHandler creates a new instance of InstaHandler
-func NewInstaHandler(ur repo.UserRepo, pr repo.PostRepo, fr repo.FollowRepo) InstaHandler {
+func NewInstaHandler(ur repo.UserRepo, pr repo.PostRepo, fr repo.FollowRepo, cr repo.CommentRepo) InstaHandler {
 	return &instaHandler{
-		userRepo:   ur,
-		postRepo:   pr,
-		followRepo: fr, // Assuming followRepo is part of userRepo
+		userRepo:    ur,
+		postRepo:    pr,
+		followRepo:  fr,
+		commentRepo: cr,
 	}
 }
 
 // CreateAcc handles the creation of a new user account
 func (h *instaHandler) CreateAcc(w http.ResponseWriter, r *http.Request) {
 	// Parse createUserReq data from request
+
 	var createUserReq dto.CreateUserRequest
 	err := json.NewDecoder(r.Body).Decode(&createUserReq)
 	if err != nil {
@@ -108,7 +111,4 @@ func (h *instaHandler) CreateAcc(w http.ResponseWriter, r *http.Request) {
 }
 
 // Placeholder implementations for other required methods
-func (h *instaHandler) PostGetComments(w http.ResponseWriter, r *http.Request) {}
-func (h *instaHandler) ShowHomePage(w http.ResponseWriter, r *http.Request)    {}
-func (h *instaHandler) AddComment(w http.ResponseWriter, r *http.Request)      {}
-func (h *instaHandler) LikePost(w http.ResponseWriter, r *http.Request)        {}
+func (h *instaHandler) ShowHomePage(w http.ResponseWriter, r *http.Request) {}

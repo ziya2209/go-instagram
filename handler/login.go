@@ -31,8 +31,8 @@ func (h *instaHandler) Login(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	
-	user , err := h.userRepo.GetByUsername(loginReq.Username)
+
+	user, err := h.userRepo.GetByUsername(loginReq.Username)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			w.WriteHeader(http.StatusUnauthorized)

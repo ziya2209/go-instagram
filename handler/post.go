@@ -74,3 +74,56 @@ func (h *instaHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 		"postId":  post.Id,
 	})
 }
+
+func (h *instaHandler) LikePost(w http.ResponseWriter, r *http.Request) {
+	var likePostReq dto.LikePostRequest
+	if err := json.NewDecoder(r.Body).Decode(&likePostReq); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": "Invalid request body",
+		})
+		return
+	}
+
+	if likePostReq.PostId <= 0 {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": "Post ID is required",
+		})
+		return
+	}
+
+	username, err := jwt.GetUsernameFromHeader(r)
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": "Invalid token",
+		})
+		return
+	}
+
+	user, err := h.userRepo.GetByUsername(username)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": "Failed to get user information",
+		})
+		return
+	}
+
+	err = h.postRepo.LikePost(user.Id, likePostReq.PostId)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": "Failed to like post",
+		})
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Post liked successfully",
+	})
+	
+}
+

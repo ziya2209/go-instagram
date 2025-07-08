@@ -2,8 +2,9 @@ package middleware
 
 import (
 	"context"
-	"instagram/jwt"
 	"net/http"
+
+	"github.com/google/uuid"
 )
 
 func ContextUpdater(next http.Handler) http.Handler {
@@ -18,18 +19,15 @@ type ContextKey string
 const (
 	// RequestIDKey is the key for the request ID in the context
 	RequestIDKey ContextKey = "requestID"
+	// UsernameKey is the key for the username in the context
+	UsernameKey ContextKey = "username"
 )
 
-func withUserName(r *http.Request) *http.Request {
-	ctx := r.Context()
-	username, _ := jwt.GetUsernameFromHeader(r)
 
-	ctx = context.WithValue(ctx, "username", username)
-	return r.WithContext(ctx)
-}
 
 func WithNewRequestId(r *http.Request) *http.Request {
 	ctx := r.Context()
-	ctx = context.WithValue(ctx, RequestIDKey, "12345")
+	requestID := uuid.New().String()
+	ctx = context.WithValue(ctx, RequestIDKey, requestID)
 	return r.WithContext(ctx)
 }

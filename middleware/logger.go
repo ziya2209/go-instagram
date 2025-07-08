@@ -21,10 +21,11 @@ func Logger(next http.Handler) http.Handler {
 
 		// Log the request details
 		log.Printf(
-			"[%s] %s %s | Status: %d | Duration: %v",
+			"[%s] %s %s | request_id %s| Status: %d | Duration: %v",
 			r.RemoteAddr,
 			r.Method,
 			r.URL.Path,
+			r.Context().Value(RequestIDKey),
 			lrw.statusCode,
 			duration,
 		)
@@ -39,7 +40,7 @@ type LoggingResponseWriter struct {
 
 // NewLoggingResponseWriter creates a new LoggingResponseWriter
 func NewLoggingResponseWriter(w http.ResponseWriter) *LoggingResponseWriter {
-	return &LoggingResponseWriter{w, http.StatusOK}
+	return &LoggingResponseWriter{ ResponseWriter: w, statusCode: http.StatusOK }
 }
 
 // WriteHeader captures the status code

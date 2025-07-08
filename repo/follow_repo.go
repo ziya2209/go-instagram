@@ -20,6 +20,10 @@ type GormFollowRepo struct {
 	DB *gorm.DB
 }
 
+func NewGormFollowRepo(db *gorm.DB) *GormFollowRepo {
+	return &GormFollowRepo{DB: db}
+}
+
 func (r *GormFollowRepo) Create(follow *models.Follow) error {
 	return r.DB.Create(follow).Error
 }

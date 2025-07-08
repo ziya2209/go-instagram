@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Clone</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar" style="display: none;">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fab fa-instagram"></i>
+                <span>Instagram</span>
+            </div>
+            <div class="nav-actions">
+                <button class="nav-btn" id="homeBtn"><i class="fas fa-home"></i></button>
+                <button class="nav-btn" id="createPostBtn"><i class="fas fa-plus-square"></i></button>
+                <button class="nav-btn" id="usersBtn"><i class="fas fa-users"></i></button>
+                <button class="nav-btn" id="followersBtn"><i class="fas fa-heart"></i></button>
+                <button class="nav-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Section -->
+    <div class="container" id="loginSection">
+        <div class="auth-card">
+            <div class="auth-header">
+                <i class="fab fa-instagram"></i>
+                <h1>Instagram</h1>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <input type="text" id="loginUsername" placeholder="Username" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="loginPassword" placeholder="Password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Log In</button>
+            </form>
+            <div class="auth-footer">
+                <p>Don't have an account? <a href="#" id="showSignup">Sign up</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Signup Section -->
+    <div class="container" id="signupSection" style="display: none;">
+        <div class="auth-card">
+            <div class="auth-header">
+                <i class="fab fa-instagram"></i>
+                <h1>Instagram</h1>
+            </div>
+            <form id="signupForm">
+                <div class="form-group">
+                    <input type="text" id="signupUsername" placeholder="Username" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="signupEmail" placeholder="Email" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="signupPassword" placeholder="Password" required>
+                </div>
+                <div class="form-group">
+                    <input type="number" id="signupAge" placeholder="Age" min="12" required>
+                </div>
+                <div class="form-group">
+                    <textarea id="signupBio" placeholder="Bio" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Sign Up</button>
+            </form>
+            <div class="auth-footer">
+                <p>Have an account? <a href="#" id="showLogin">Log in</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent" style="display: none;">
+        <!-- Home Feed -->
+        <div class="content-section" id="homeSection">
+            <h2>Home Feed</h2>
+            <div id="posts" class="posts-container">
+                <!-- Posts will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Create Post -->
+        <div class="content-section" id="createPostSection" style="display: none;">
+            <div class="create-post-card">
+                <h2>Create New Post</h2>
+                <form id="createPostForm">
+                    <div class="form-group">
+                        <input type="url" id="postUrl" placeholder="Image URL" required>
+                    </div>
+                    <div class="form-group">
+                        <textarea id="postCaption" placeholder="Write a caption..." rows="4" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Share Post</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Users List -->
+        <div class="content-section" id="usersSection" style="display: none;">
+            <h2>All Users</h2>
+            <div id="usersList" class="users-grid">
+                <!-- Users will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Followers -->
+        <div class="content-section" id="followersSection" style="display: none;">
+            <h2>People You Follow</h2>
+            <div id="followersList" class="followers-list">
+                <!-- Followers will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Post Modal -->
+    <div class="modal" id="postModal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="postDetails">
+                <!-- Post details and comments will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Comment Modal -->
+    <div class="modal" id="commentModal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="comment-form">
+                <h3>Add Comment</h3>
+                <form id="commentForm">
+                    <input type="hidden" id="commentParentId">
+                    <input type="hidden" id="commentParentType">
+                    <div class="form-group">
+                        <textarea id="commentText" placeholder="Write a comment..." rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Post Comment</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Follow Modal -->
+    <div class="modal" id="followModal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="follow-form">
+                <h3>Follow User</h3>
+                <form id="followForm">
+                    <div class="form-group">
+                        <input type="text" id="followUsername" placeholder="Username to follow" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Follow</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading spinner -->
+    <div class="loading" id="loading" style="display: none;">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Toast notifications -->
+    <div class="toast" id="toast"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

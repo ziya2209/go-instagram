@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"context"
 	"net/http"
 	"strings"
 
@@ -30,7 +31,7 @@ func JWTAuthMiddleware(next http.Handler) http.Handler {
 
 		// Parse and validate the token
 		token, err := jwt.VerifyToken(tokenString)
-		if err != nil || !token {		
+		if err != nil || !token {
 			http.Error(w, "Invalid or expired token", http.StatusUnauthorized)
 			return
 		}
@@ -38,4 +39,11 @@ func JWTAuthMiddleware(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 	})
+}
+func withUserName(r *http.Request) *http.Request {
+	ctx := r.Context()
+	username, _ := jwt.GetUsernameFromHeader(r)
+
+	ctx = context.WithValue(ctx, UsernameKey, username)
+	return r.WithContext(ctx)
 }

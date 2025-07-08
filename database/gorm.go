@@ -55,7 +55,7 @@ func DB() (*gorm.DB, error) {
 			return
 		}
 
-		err := dbInstance.AutoMigrate(models...)
+		err = dbInstance.AutoMigrate(models...)
 		if err != nil {
 			log.Printf("failed to migrate database: %v\n", err)
 			return

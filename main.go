@@ -15,15 +15,29 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	ur := repo.NewUserRepo(db)
-	pr := &repo.GormPostRepo{DB: db}
-	fr := &repo.GormFollowRepo{DB: db} // Assuming you have a follow repository
+	ur := repo.NewGormUserRepo(db)
+	pr := repo.NewGormPostRepo(db)
+	fr := repo.NewGormFollowRepo(db)
+	cr := repo.NewGormCommentRepo(db)
 
-	instahandler := handler.NewInstaHandler(ur, pr, fr)
+	instahandler := handler.NewInstaHandler(ur, pr, fr, cr)
 
+	ctrl := &controller{}
+	ctrl.Start(instahandler)
+}
+
+type controller struct{}
+
+func (c *controller) Start(instahandler handler.InstaHandler) {
 	router := mux.NewRouter()
 
-	router.Use(middleware.CORS)
+	// Use standard CORS middleware (recommended)
+	// router.Use(middleware.CORS)
+
+	// Alternative: Use custom CORS middleware if you have issues with file:// protocol
+	// Uncomment the line below and comment out the line above if needed
+	router.Use(middleware.CustomCORS)
+
 	router.Use(middleware.ContextUpdater)
 	router.Use(middleware.Logger)
 
@@ -34,7 +48,7 @@ func main() {
 	protected := router.NewRoute().Subrouter()
 
 	protected.Use(middleware.JWTAuthMiddleware)
-	protected.HandleFunc("/getUser", instahandler.GetAllUser).Methods("GET")
+	protected.HandleFunc("/users", instahandler.GetAllUser).Methods("GET")
 	protected.HandleFunc("/follow", instahandler.Follow).Methods("POST")
 	protected.HandleFunc("/followers", instahandler.GetFollowers).Methods("GET")
 	protected.HandleFunc("/addComment/post", instahandler.AddComment).Methods("POST")
