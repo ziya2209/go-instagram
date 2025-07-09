@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"instagram/dto"
+	"instagram/middleware"
 	"instagram/repo"
 	"net/http"
 )
@@ -20,7 +21,7 @@ func (h *instaHandler) Follow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Assuming the user ID is stored in the context
-	username, ok := r.Context().Value("username").(string)
+	username, ok := r.Context().Value(middleware.UsernameKey).(string)
 	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(w).Encode(map[string]string{
@@ -87,7 +88,7 @@ func (h *instaHandler) Follow(w http.ResponseWriter, r *http.Request) {
 
 func (h *instaHandler) GetFollowers(w http.ResponseWriter, r *http.Request) {
 	// Get username from context
-	username, ok := r.Context().Value("username").(string)
+	username, ok := r.Context().Value(middleware.UsernameKey).(string)
 	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(w).Encode(map[string]string{
@@ -124,8 +125,7 @@ func (h *instaHandler) GetFollowers(w http.ResponseWriter, r *http.Request) {
 			continue // Skip if user not found
 		}
 		followedUsernames = append(followedUsernames, user.Username)
-		
-		
+
 	}
 	fmt.Println(followedUsernames)
 

@@ -3,7 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"instagram/dto"
-	"instagram/jwt"
+	"instagram/middleware"
 	"instagram/models"
 	"net/http"
 	"time"
@@ -29,12 +29,12 @@ func (h *instaHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get username from JWT token
-	username, err := jwt.GetUsernameFromHeader(r)
-	if err != nil {
+	// Get username from context
+	username, ok := r.Context().Value(middleware.UsernameKey).(string)
+	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(w).Encode(map[string]string{
-			"error": "Invalid token",
+			"error": "Unauthorized",
 		})
 		return
 	}
@@ -93,11 +93,11 @@ func (h *instaHandler) LikePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	username, err := jwt.GetUsernameFromHeader(r)
-	if err != nil {
+	username, ok := r.Context().Value(middleware.UsernameKey).(string)
+	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(w).Encode(map[string]string{
-			"error": "Invalid token",
+			"error": "Unauthorized",
 		})
 		return
 	}
@@ -124,6 +124,5 @@ func (h *instaHandler) LikePost(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{
 		"message": "Post liked successfully",
 	})
-	
-}
 
+}

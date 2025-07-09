@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"instagram/dto"
+	"instagram/middleware"
 	"instagram/models"
 	"net/http"
 	"strconv"
@@ -10,7 +11,7 @@ import (
 
 func (h *instaHandler) AddComment(w http.ResponseWriter, r *http.Request) {
 	// Get the user ID from the context
-	username, ok := r.Context().Value("username").(string)
+	username, ok := r.Context().Value(middleware.UsernameKey).(string)
 	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(w).Encode(map[string]string{
