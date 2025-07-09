@@ -29,8 +29,8 @@
                 "method": "POST",
                 "header": [
                     {
-                        "key": "Authorization",
-                        "value": "Bearer {{jwt_token}}",
+                        "key": "Content-Type",
+                        "value": "application/json",
                         "type": "text"
                     }
                 ],
@@ -47,7 +47,7 @@
                 },
                 "body": {
                     "mode": "raw",
-                    "raw": "{\n  \"username\": \"test_user\",\n  \"password\": \"test_password\",\n  \"email\": \"test@example.com\"\n}",
+                    "raw": "{\n  \"username\": \"test_user\",\n  \"password\": \"test_password\",\n  \"email\": \"test@example.com\",\n  \"age\": 25,\n  \"bio\": \"Test user bio\"\n}",
                     "options": {
                         "raw": {
                             "language": "json"
@@ -62,8 +62,8 @@
                 "method": "POST",
                 "header": [
                     {
-                        "key": "Authorization",
-                        "value": "Bearer {{jwt_token}}",
+                        "key": "Content-Type",
+                        "value": "application/json",
                         "type": "text"
                     }
                 ],
@@ -98,6 +98,11 @@
                         "key": "Authorization",
                         "value": "Bearer {{jwt_token}}",
                         "type": "text"
+                    },
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json",
+                        "type": "text"
                     }
                 ],
                 "url": {
@@ -113,7 +118,7 @@
                 },
                 "body": {
                     "mode": "raw",
-                    "raw": "{\n  \"caption\": \"My new post\",\n  \"image_url\": \"https://example.com/image.jpg\"\n}",
+                    "raw": "{\n  \"caption\": \"My new post\",\n  \"url\": \"https://example.com/image.jpg\"\n}",
                     "options": {
                         "raw": {
                             "language": "json"
@@ -131,6 +136,11 @@
                         "key": "Authorization",
                         "value": "Bearer {{jwt_token}}",
                         "type": "text"
+                    },
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json",
+                        "type": "text"
                     }
                 ],
                 "url": {
@@ -147,7 +157,7 @@
                 },
                 "body": {
                     "mode": "raw",
-                    "raw": "{\n  \"post_id\": 1,\n  \"content\": \"Great post!\"\n}",
+                    "raw": "{\n  \"parent_id\": 1,\n  \"comment\": \"Great post!\",\n  \"parent_type\": \"post\"\n}",
                     "options": {
                         "raw": {
                             "language": "json"
@@ -165,6 +175,11 @@
                         "key": "Authorization",
                         "value": "Bearer {{jwt_token}}",
                         "type": "text"
+                    },
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json",
+                        "type": "text"
                     }
                 ],
                 "url": {
@@ -181,7 +196,7 @@
                 },
                 "body": {
                     "mode": "raw",
-                    "raw": "{\n  \"comment_id\": 1,\n  \"content\": \"Reply to comment\"\n}",
+                    "raw": "{\n  \"parent_id\": 1,\n  \"comment\": \"Reply to comment\",\n  \"parent_type\": \"comment\"\n}",
                     "options": {
                         "raw": {
                             "language": "json"
@@ -198,6 +213,11 @@
                     {
                         "key": "Authorization",
                         "value": "Bearer {{jwt_token}}",
+                        "type": "text"
+                    },
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json",
                         "type": "text"
                     }
                 ],
@@ -259,7 +279,7 @@
                     }
                 ],
                 "url": {
-                    "raw": "http://localhost:8080/post/comments?post_id=1",
+                    "raw": "http://localhost:8080/post/comments?postId=1",
                     "protocol": "http",
                     "host": [
                         "localhost"
@@ -271,7 +291,7 @@
                     ],
                     "query": [
                         {
-                            "key": "post_id",
+                            "key": "postId",
                             "value": "1"
                         }
                     ]
@@ -286,6 +306,11 @@
                     {
                         "key": "Authorization",
                         "value": "Bearer {{jwt_token}}",
+                        "type": "text"
+                    },
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json",
                         "type": "text"
                     }
                 ],
@@ -302,7 +327,7 @@
                 },
                 "body": {
                     "mode": "raw",
-                    "raw": "{\n  \"username\": \"your_username_here\"\n}",
+                    "raw": "{\n  \"username\": \"user_to_follow\"\n}",
                     "options": {
                         "raw": {
                             "language": "json"
@@ -331,6 +356,30 @@
                     "port": "8080",
                     "path": [
                         "followers"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Get All Users",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{jwt_token}}",
+                        "type": "text"
+                    }
+                ],
+                "url": {
+                    "raw": "http://localhost:8080/users",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "8080",
+                    "path": [
+                        "users"
                     ]
                 }
             }
