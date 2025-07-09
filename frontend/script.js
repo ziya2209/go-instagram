@@ -1,7 +1,31 @@
 // API Configuration
 const API_BASE_URL = 'http://localhost:8080';
-let authToken = localStorage.getItem('authToken');
-let currentUser = localStorage.getItem('currentUser');
+
+// Cookie utility functions
+function setCookie(name, value, days = 7) {
+    const expires = new Date();
+    expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+    document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+}
+
+function getCookie(name) {
+    const nameEQ = name + "=";
+    const ca = document.cookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+    }
+    return null;
+}
+
+function deleteCookie(name) {
+    document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/;SameSite=Lax`;
+}
+
+// Get auth data from cookies (fallback to localStorage for backward compatibility)
+let authToken = getCookie('authToken') || localStorage.getItem('authToken');
+let currentUser = getCookie('currentUser') || localStorage.getItem('currentUser');
 
 // DOM Elements
 const loginSection = document.getElementById('loginSection');
@@ -56,22 +80,49 @@ async function apiCall(endpoint, options = {}) {
     showLoading();
     try {
         const config = {
-            headers: {
-                'Content-Type': 'application/json',
-                ...options.headers
-            },
             ...options
         };
 
-        if (authToken && !config.headers.Authorization) {
-            config.headers.Authorization = `Bearer ${authToken}`;
+        // Set headers only when needed
+        if (!config.headers) {
+            config.headers = {};
         }
 
+        // Add Content-Type for POST requests with body
+        if (config.method === 'POST' && config.body) {
+            config.headers['Content-Type'] = 'application/json';
+        }
+
+        // Add Authorization header for protected endpoints (not for login/signup)
+        // Update: Always add Authorization header if token is available, except for login/signup
+        // Refresh token from cookies in case it was updated
+        const currentToken = getCookie('authToken') || localStorage.getItem('authToken');
+        if (currentToken && !endpoint.includes('/login') && !endpoint.includes('/createAccount')) {
+            authToken = currentToken; // Update the global variable
+            config.headers['Authorization'] = `Bearer ${currentToken}`;
+        }
+
+        console.log('Making API call:', endpoint, 'with headers:', config.headers); // Debug log
+
         const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-        const data = await response.json();
+        
+        // Handle non-JSON responses
+        let data;
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            data = await response.json();
+        } else {
+            const textResponse = await response.text();
+            try {
+                // Try to parse as JSON even if content-type is wrong
+                data = JSON.parse(textResponse);
+            } catch (e) {
+                data = { message: textResponse };
+            }
+        }
 
         if (!response.ok) {
-            throw new Error(data.error || 'API request failed');
+            throw new Error(data.error || data.message || `HTTP ${response.status}: ${response.statusText}`);
         }
 
         return data;
@@ -91,10 +142,18 @@ async function login(username, password) {
             body: JSON.stringify({ username, password })
         });
 
+        // Store token in cookies (preferred) and localStorage (fallback)
         authToken = data.token;
         currentUser = username;
+        
+        setCookie('authToken', authToken, 7); // Store for 7 days
+        setCookie('currentUser', currentUser, 7);
+        
+        // Also store in localStorage for backward compatibility
         localStorage.setItem('authToken', authToken);
         localStorage.setItem('currentUser', currentUser);
+
+        console.log('Login successful, token stored:', authToken.substring(0, 20) + '...'); // Debug log
 
         showMainApp();
         showToast('Logged in successfully!');
@@ -120,6 +179,12 @@ async function signup(userData) {
 function logout() {
     authToken = null;
     currentUser = null;
+    
+    // Delete cookies
+    deleteCookie('authToken');
+    deleteCookie('currentUser');
+    
+    // Also clear localStorage for backward compatibility
     localStorage.removeItem('authToken');
     localStorage.removeItem('currentUser');
     
@@ -336,6 +401,12 @@ function openCommentModal(parentId, parentType) {
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', function() {
+    // Refresh token from cookies on page load
+    authToken = getCookie('authToken') || localStorage.getItem('authToken');
+    currentUser = getCookie('currentUser') || localStorage.getItem('currentUser');
+    
+    console.log('App initialized with token:', authToken ? authToken.substring(0, 20) + '...' : 'No token'); // Debug log
+    
     // Check if user is already logged in
     if (authToken && currentUser) {
         showMainApp();
@@ -456,3 +527,28 @@ checkHealth().then(isHealthy => {
 window.openFollowModal = openFollowModal;
 window.openCommentModal = openCommentModal;
 window.likePost = likePost;
+
+// Debug function to check token status
+window.debugTokens = function() {
+    console.log('=== TOKEN DEBUG ===');
+    console.log('Cookie authToken:', getCookie('authToken'));
+    console.log('localStorage authToken:', localStorage.getItem('authToken'));
+    console.log('Global authToken:', authToken);
+    console.log('Cookie currentUser:', getCookie('currentUser'));
+    console.log('localStorage currentUser:', localStorage.getItem('currentUser'));
+    console.log('Global currentUser:', currentUser);
+    console.log('===================');
+};
+
+// Test API call function
+window.testUsersAPI = async function() {
+    try {
+        console.log('Testing /users API call...');
+        const users = await apiCall('/users');
+        console.log('Success:', users);
+        return users;
+    } catch (error) {
+        console.error('Failed:', error);
+        return null;
+    }
+};

@@ -35,6 +35,7 @@ func (h *instaHandler) CreateAcc(w http.ResponseWriter, r *http.Request) {
 	var createUserReq dto.CreateUserRequest
 	err := json.NewDecoder(r.Body).Decode(&createUserReq)
 	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]string{
 			"error": "Invalid request body",
@@ -59,6 +60,7 @@ func (h *instaHandler) CreateAcc(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(emptyFields) > 0 {
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]interface{}{
 			"error":  "Required fields are empty",
@@ -70,6 +72,7 @@ func (h *instaHandler) CreateAcc(w http.ResponseWriter, r *http.Request) {
 	// Hash the password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(createUserReq.Password), bcrypt.DefaultCost)
 	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(map[string]string{
 			"error": "Failed to hash password",
@@ -89,12 +92,14 @@ func (h *instaHandler) CreateAcc(w http.ResponseWriter, r *http.Request) {
 	err = h.userRepo.Create(user)
 	if err != nil {
 		if err.Error() == "email already exists" {
+			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusConflict)
 			json.NewEncoder(w).Encode(map[string]string{
 				"error": "Email already exists",
 			})
 			return
 		}
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(map[string]string{
 			"error": "Failed to create account",
@@ -103,6 +108,7 @@ func (h *instaHandler) CreateAcc(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Return success response
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"message": "Account created successfully",

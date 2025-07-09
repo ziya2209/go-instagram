@@ -41,6 +41,12 @@ func (c *controller) Start(instahandler handler.InstaHandler) {
 	router.Use(middleware.ContextUpdater)
 	router.Use(middleware.Logger)
 
+	// Global OPTIONS handler for CORS preflight
+	router.Methods("OPTIONS").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// CORS headers are already set by the CustomCORS middleware
+		w.WriteHeader(http.StatusOK)
+	})
+
 	router.HandleFunc("/health", instahandler.Health).Methods("GET")
 	router.HandleFunc("/createAccount", instahandler.CreateAcc).Methods("POST")
 	router.HandleFunc("/login", instahandler.Login).Methods("POST")
