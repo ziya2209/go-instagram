@@ -12,6 +12,11 @@ type PostRepo interface {
 	Update(post *models.Post) error
 	Delete(id int) error
 	LikePost(postId int, userId int) error
+	GetPostsByUserIds(userIds []int, page int, limit int) ([]models.Post, int, error)
+	GetPostsByUserId(userId int, page int, limit int) ([]models.Post, int, error)
+	GetLikeCount(postId int) (int, error)
+	GetCommentCount(postId int) (int, error)
+	IsPostOwner(postId int, userId int) (bool, error)
 }
 
 type GormPostRepo struct {
@@ -48,4 +53,81 @@ func (r *GormPostRepo) Update(post *models.Post) error {
 
 func (r *GormPostRepo) Delete(id int) error {
 	return r.DB.Delete(&models.Post{}, id).Error
+}
+
+// GetPostsByUserId retrieves posts from a specific user with pagination, ordered by creation date (newest first)
+func (r *GormPostRepo) GetPostsByUserId(userId int, page int, limit int) ([]models.Post, int, error) {
+	var posts []models.Post
+	var totalCount int64
+
+	// Calculate offset
+	offset := (page - 1) * limit
+
+	// Get total count for pagination
+	if err := r.DB.Model(&models.Post{}).Where("user_id = ?", userId).Count(&totalCount).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// Get posts with pagination, ordered by creation date descending (newest first)
+	if err := r.DB.Where("user_id = ?", userId).
+		Order("created_at DESC").
+		Limit(limit).
+		Offset(offset).
+		Find(&posts).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return posts, int(totalCount), nil
+}
+
+// GetPostsByUserIds retrieves posts from specific users with pagination, ordered by creation date (newest first)
+func (r *GormPostRepo) GetPostsByUserIds(userIds []int, page int, limit int) ([]models.Post, int, error) {
+	var posts []models.Post
+	var totalCount int64
+
+	// Calculate offset
+	offset := (page - 1) * limit
+
+	// Get total count for pagination
+	if err := r.DB.Model(&models.Post{}).Where("user_id IN ?", userIds).Count(&totalCount).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// Get posts with pagination, ordered by creation date descending (newest first)
+	if err := r.DB.Where("user_id IN ?", userIds).
+		Order("created_at DESC").
+		Limit(limit).
+		Offset(offset).
+		Find(&posts).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return posts, int(totalCount), nil
+}
+
+// GetLikeCount returns the number of likes for a specific post
+func (r *GormPostRepo) GetLikeCount(postId int) (int, error) {
+	var count int64
+	if err := r.DB.Model(&models.Like{}).Where("post_id = ?", postId).Count(&count).Error; err != nil {
+		return 0, err
+	}
+	return int(count), nil
+}
+
+// GetCommentCount returns the number of comments for a specific post
+func (r *GormPostRepo) GetCommentCount(postId int) (int, error) {
+	var count int64
+	if err := r.DB.Model(&models.Comment{}).Where("parent_type = ? AND parent_id = ?", "post", postId).Count(&count).Error; err != nil {
+		return 0, err
+	}
+	return int(count), nil
+}
+
+// IsPostOwner checks if a user owns a specific post
+func (r *GormPostRepo) IsPostOwner(postId int, userId int) (bool, error) {
+	var count int64
+	if err := r.DB.Model(&models.Post{}).Where("id = ? AND user_id = ?", postId, userId).Count(&count).Error; err != nil {
+		return false, err
+	}
+	return count > 0, nil
 }

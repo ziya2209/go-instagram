@@ -13,6 +13,7 @@ type FollowRepo interface {
 	GetById(id int) (*models.Follow, error)
 	Delete(id int) error
 	FollowUser(followerID int, followeeID int) error
+	UnfollowUser(followerID int, followeeID int) error
 	GetFollowers(userId int) ([]*models.Follow, error)
 }
 
@@ -53,6 +54,19 @@ func (r *GormFollowRepo) FollowUser(followerID int, followedID int) error {
 			return ErrDuplicateFollow
 		}
 		return err
+	}
+	return nil
+}
+
+var ErrNotFollowing = errors.New("you are not following this user")
+
+func (r *GormFollowRepo) UnfollowUser(followerID int, followeeID int) error {
+	result := r.DB.Where("follower_id = ? AND followed_id = ?", followerID, followeeID).Delete(&models.Follow{})
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return ErrNotFollowing
 	}
 	return nil
 }

@@ -86,6 +86,90 @@ func (h *instaHandler) Follow(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func (h *instaHandler) Unfollow(w http.ResponseWriter, r *http.Request) {
+	// Get the user ID from the context
+	var fr dto.FollowRequest
+	err := json.NewDecoder(r.Body).Decode(&fr)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": "Invalid request body",
+		})
+		return
+	}
+
+	// Get current user from JWT context
+	username, ok := r.Context().Value(middleware.UsernameKey).(string)
+	if !ok {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": "Unauthorized",
+		})
+		return
+	}
+
+	// Validate the request
+	if fr.Username == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": "Username to unfollow is required",
+		})
+		return
+	}
+
+	// Get the user ID of the current user
+	user, err := h.userRepo.GetByUsername(username)
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": "Unauthorized",
+		})
+		return
+	}
+
+	// Get the user ID of the user to be unfollowed
+	unfollowedUser, err := h.userRepo.GetByUsername(fr.Username)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": "User not found",
+		})
+		return
+	}
+
+	// Check if the user is trying to unfollow themselves
+	if unfollowedUser.Id == user.Id {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": "You cannot unfollow yourself",
+		})
+		return
+	}
+
+	// Call the follow repository to unfollow the user
+	err = h.followRepo.UnfollowUser(user.Id, unfollowedUser.Id)
+	if err != nil {
+		if err == repo.ErrNotFollowing {
+			w.WriteHeader(http.StatusConflict)
+			json.NewEncoder(w).Encode(map[string]string{
+				"error": "You are not following this user",
+			})
+			return
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error":   "Failed to unfollow user",
+			"details": err.Error(),
+		})
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Successfully unfollowed user",
+	})
+}
+
 func (h *instaHandler) GetFollowers(w http.ResponseWriter, r *http.Request) {
 	// Get username from context
 	username, ok := r.Context().Value(middleware.UsernameKey).(string)
