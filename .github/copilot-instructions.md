@@ -18,6 +18,7 @@ This is a Go-based Instagram clone with a clean architecture using the Repositor
 - **Interface**: `handler/interface.go` defines `InstaHandler` contract
 - **Implementation**: Split across multiple files (`login.go`, `post.go`, `user_handler.go`, etc.)
 - **Constructor**: `NewInstaHandler()` in `account_handler.go` takes all repos as dependencies
+- **Dependency Injection**: All repositories injected via constructor in `main.go` setup
 
 ### Authentication Flow
 - **JWT Tokens**: Generated in `jwt/jwt.go` with hardcoded secret `"secret"`
@@ -32,15 +33,17 @@ This is a Go-based Instagram clone with a clean architecture using the Repositor
 # Use Docker Compose v2 syntax (space, not hyphen)
 make up        # Start containers
 make ra        # Quick app rebuild (most common during development)  
+make rf        # Quick frontend rebuild
 make logs      # View container logs
 make down      # Stop everything
 ```
-**Note**: Makefile recently updated to use `docker compose` instead of `docker-compose`
+**Note**: All commands use `docker compose` (v2 syntax) instead of legacy `docker-compose`
 
 ### Database Management
 - **Auto-migration**: GORM AutoMigrate runs on startup via `database/gorm.go`
 - **Model Registration**: Models registered in `models/models.go` init function
-- **Connection**: Singleton pattern with retry logic for Docker startup timing
+- **Connection**: Singleton pattern with retry logic (5 attempts) for Docker startup timing
+- **Environment**: MySQL 8.0 with credentials defined in `docker-compose.yml`
 
 ### API Development
 - **Public Routes**: `/health`, `/createAccount`, `/login` (no auth required)
@@ -61,7 +64,8 @@ make down      # Stop everything
 
 ### Frontend Integration
 - **API Base**: `http://localhost:8080` (hardcoded in `frontend/script.js`)
-- **Authentication**: Frontend automatically includes JWT in headers
+- **Authentication**: Frontend automatically includes JWT in headers via Bearer token
+- **Storage**: Tokens stored in both cookies and localStorage for compatibility
 - **Error Display**: Toast notifications for user feedback
 
 ## Key Files for Understanding

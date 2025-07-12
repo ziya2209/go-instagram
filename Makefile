@@ -1,4 +1,4 @@
-.PHONY: build up down restart logs ps clean redeploy help
+.PHONY: build up down restart logs ps clean redeploy ra rf help
 
 # Default command, shows help
 .DEFAULT_GOAL := help
@@ -45,6 +45,13 @@ ra:
 	docker-compose build app
 	docker-compose up -d app
 
+# Redeploy only the frontend service (faster for frontend changes)
+rf:
+	docker-compose stop frontend
+	docker-compose rm -f frontend
+	docker-compose build frontend
+	docker-compose up -d frontend
+
 # Show help message
 help:
 	@echo "Instagram Clone Development Commands:"
@@ -57,6 +64,7 @@ help:
 	@echo "make ps           - List running containers"
 	@echo "make clean        - Remove stopped containers and unused images"
 	@echo "make redeploy     - Perform a full rebuild and restart of all services"
-	@echo "make redeploy-app - Rebuild and restart only the app service"
+	@echo "make ra           - Rebuild and restart only the app service"
+	@echo "make rf           - Rebuild and restart only the frontend service"
 	@echo "make help         - Show this help message"
 	@echo ""

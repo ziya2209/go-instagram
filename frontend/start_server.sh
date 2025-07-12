@@ -1,3 +1,3 @@
 #!/bin/bash
-echo "Starting frontend server..."
-python3 server.py
+echo "Starting Go frontend server..."
+go run main.go
