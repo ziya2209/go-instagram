@@ -35,11 +35,32 @@ type FollowersResponse struct {
 	Followers []string `json:"followers"`
 }
 type LikePostResponse struct {
-	PostId int    `json:"post_id"`
+	PostId int `json:"post_id"`
 }
 type CommentRequest struct {
-	ParentId int    `json:"parent_id" validate:"required"`
-	Comment  string `json:"comment" validate:"required"`
+	ParentId   int    `json:"parent_id" validate:"required"`
+	Comment    string `json:"comment" validate:"required"`
 	ParentType string `json:"parent_type" validate:"required"` // e.g., "post" or "comment"
 }
 
+type HomepageResponse struct {
+	Posts      []PostWithAuthor `json:"posts"`
+	TotalPosts int              `json:"total_posts"`
+	Page       int              `json:"page"`
+	Limit      int              `json:"limit"`
+	TotalPages int              `json:"total_pages"`
+	HasNext    bool             `json:"has_next"`
+	HasPrev    bool             `json:"has_prev"`
+}
+
+type PostWithAuthor struct {
+	Id             int    `json:"id"`
+	UserId         int    `json:"user_id"`
+	Url            string `json:"url"`
+	Caption        string `json:"caption"`
+	CreatedAt      string `json:"created_at"`
+	UpdatedAt      string `json:"updated_at"`
+	AuthorUsername string `json:"author_username"`
+	LikeCount      int    `json:"like_count"`
+	CommentCount   int    `json:"comment_count"`
+}

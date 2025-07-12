@@ -44,37 +44,73 @@ func (r *gormCommentRepo) Delete(id int) error {
 }
 
 func (r *gormCommentRepo) GetByPostId(postId int) ([]CommentTree, error) {
-	var roots []CommentTree
-	comments, err := r.GetByTypeAndIds("post", []int{postId})
+	// Get all comments for this post (root level comments)
+	rootComments, err := r.GetByTypeAndIds("post", []int{postId})
 	if err != nil {
 		return nil, err
 	}
-	for _, com := range comments {
+
+	// If no root comments, return empty slice
+	if len(rootComments) == 0 {
+		return []CommentTree{}, nil
+	}
+
+	// Create root nodes
+	var roots []CommentTree
+	for _, com := range rootComments {
 		roots = append(roots, CommentTree{
 			Comment: com,
 		})
 	}
 
-	m := map[int][]CommentTree{}
+	// Build a map of parent_id -> children for all nested comments
+	childrenMap := make(map[int][]CommentTree)
 
-	for len(comments) > 0 {
-		ids := []int{}
-		for _, v := range comments {
-			ids = append(ids, v.Id)
-			m[v.Id] = append(m[v.Id], CommentTree{
-				Comment: v,
-			})
+	// Get all nested comments (replies) in a breadth-first manner
+	currentLevelComments := rootComments
+	processedIds := make(map[int]bool) // Prevent infinite loops
 
+	for len(currentLevelComments) > 0 {
+		var nextLevelComments []models.Comment
+
+		// Get comment IDs for the current level
+		var currentIds []int
+		for _, comment := range currentLevelComments {
+			// Skip if we've already processed this comment (prevent cycles)
+			if processedIds[comment.Id] {
+				continue
+			}
+			currentIds = append(currentIds, comment.Id)
+			processedIds[comment.Id] = true
 		}
-		comments, err = r.GetByTypeAndIds("comments", ids)
+
+		// If no new IDs to process, break to prevent infinite loop
+		if len(currentIds) == 0 {
+			break
+		}
+
+		// Get all replies to the current level comments
+		replies, err := r.GetByTypeAndIds("comment", currentIds)
 		if err != nil {
 			return nil, err
 		}
+
+		// Group replies by their parent_id
+		for _, reply := range replies {
+			childrenMap[reply.ParentId] = append(childrenMap[reply.ParentId], CommentTree{
+				Comment: reply,
+			})
+			nextLevelComments = append(nextLevelComments, reply)
+		}
+
+		currentLevelComments = nextLevelComments
 	}
 
-	for _, root := range roots {
-		buildCommentTree(&root, m)
+	// Build the complete tree structure
+	for i := range roots {
+		buildCommentTree(&roots[i], childrenMap)
 	}
+
 	return roots, nil
 }
 
