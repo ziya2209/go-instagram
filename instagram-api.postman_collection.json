@@ -11,12 +11,10 @@
             "request": {
                 "method": "GET",
                 "url": {
-                    "raw": "http://localhost:8080/health",
-                    "protocol": "http",
+                    "raw": "{{base_url}}/health",
                     "host": [
-                        "localhost"
+                        "{{base_url}}"
                     ],
-                    "port": "8080",
                     "path": [
                         "health"
                     ]
@@ -35,19 +33,17 @@
                     }
                 ],
                 "url": {
-                    "raw": "http://localhost:8080/createAccount",
-                    "protocol": "http",
+                    "raw": "{{base_url}}/createAccount",
                     "host": [
-                        "localhost"
+                        "{{base_url}}"
                     ],
-                    "port": "8080",
                     "path": [
                         "createAccount"
                     ]
                 },
                 "body": {
                     "mode": "raw",
-                    "raw": "{\n  \"username\": \"test_user\",\n  \"password\": \"test_password\",\n  \"email\": \"test@example.com\",\n  \"age\": 25,\n  \"bio\": \"Test user bio\"\n}",
+                    "raw": "{\n  \"username\": \"{{test_username}}\",\n  \"password\": \"{{test_password}}\",\n  \"email\": \"{{test_email}}\",\n  \"age\": {{test_age}},\n  \"bio\": \"{{test_bio}}\"\n}",
                     "options": {
                         "raw": {
                             "language": "json"
@@ -68,19 +64,17 @@
                     }
                 ],
                 "url": {
-                    "raw": "http://localhost:8080/login",
-                    "protocol": "http",
+                    "raw": "{{base_url}}/login",
                     "host": [
-                        "localhost"
+                        "{{base_url}}"
                     ],
-                    "port": "8080",
                     "path": [
                         "login"
                     ]
                 },
                 "body": {
                     "mode": "raw",
-                    "raw": "{\n  \"username\": \"test_user\",\n  \"password\": \"test_password\"\n}",
+                    "raw": "{\n  \"username\": \"{{test_username}}\",\n  \"password\": \"{{test_password}}\"\n}",
                     "options": {
                         "raw": {
                             "language": "json"
@@ -106,24 +100,45 @@
                     }
                 ],
                 "url": {
-                    "raw": "http://localhost:8080/createPost",
-                    "protocol": "http",
+                    "raw": "{{base_url}}/createPost",
                     "host": [
-                        "localhost"
+                        "{{base_url}}"
                     ],
-                    "port": "8080",
                     "path": [
                         "createPost"
                     ]
                 },
                 "body": {
                     "mode": "raw",
-                    "raw": "{\n  \"caption\": \"My new post\",\n  \"url\": \"https://example.com/image.jpg\"\n}",
+                    "raw": "{\n  \"caption\": \"{{post_caption}}\",\n  \"url\": \"{{post_url}}\"\n}",
                     "options": {
                         "raw": {
                             "language": "json"
                         }
                     }
+                }
+            }
+        },
+        {
+            "name": "Delete Post",
+            "request": {
+                "method": "DELETE",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{jwt_token}}",
+                        "type": "text"
+                    }
+                ],
+                "url": {
+                    "raw": "{{base_url}}/deletePost/{{post_id}}",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "deletePost",
+                        "{{post_id}}"
+                    ]
                 }
             }
         },
@@ -144,12 +159,10 @@
                     }
                 ],
                 "url": {
-                    "raw": "http://localhost:8080/addComment/post",
-                    "protocol": "http",
+                    "raw": "{{base_url}}/addComment/post",
                     "host": [
-                        "localhost"
+                        "{{base_url}}"
                     ],
-                    "port": "8080",
                     "path": [
                         "addComment",
                         "post"
@@ -157,7 +170,7 @@
                 },
                 "body": {
                     "mode": "raw",
-                    "raw": "{\n  \"parent_id\": 1,\n  \"comment\": \"Great post!\",\n  \"parent_type\": \"post\"\n}",
+                    "raw": "{\n  \"parent_id\": {{post_id}},\n  \"comment\": \"{{comment_text}}\",\n  \"parent_type\": \"post\"\n}",
                     "options": {
                         "raw": {
                             "language": "json"
@@ -183,12 +196,10 @@
                     }
                 ],
                 "url": {
-                    "raw": "http://localhost:8080/addComment/comment",
-                    "protocol": "http",
+                    "raw": "{{base_url}}/addComment/comment",
                     "host": [
-                        "localhost"
+                        "{{base_url}}"
                     ],
-                    "port": "8080",
                     "path": [
                         "addComment",
                         "comment"
@@ -196,7 +207,7 @@
                 },
                 "body": {
                     "mode": "raw",
-                    "raw": "{\n  \"parent_id\": 1,\n  \"comment\": \"Reply to comment\",\n  \"parent_type\": \"comment\"\n}",
+                    "raw": "{\n  \"parent_id\": {{comment_id}},\n  \"comment\": \"{{reply_text}}\",\n  \"parent_type\": \"comment\"\n}",
                     "options": {
                         "raw": {
                             "language": "json"
@@ -222,19 +233,17 @@
                     }
                 ],
                 "url": {
-                    "raw": "http://localhost:8080/likePost",
-                    "protocol": "http",
+                    "raw": "{{base_url}}/likePost",
                     "host": [
-                        "localhost"
+                        "{{base_url}}"
                     ],
-                    "port": "8080",
                     "path": [
                         "likePost"
                     ]
                 },
                 "body": {
                     "mode": "raw",
-                    "raw": "{\n  \"post_id\": 1\n}",
+                    "raw": "{\n  \"post_id\": {{post_id}}\n}",
                     "options": {
                         "raw": {
                             "language": "json"
@@ -255,14 +264,158 @@
                     }
                 ],
                 "url": {
-                    "raw": "http://localhost:8080/home",
-                    "protocol": "http",
+                    "raw": "{{base_url}}/home",
                     "host": [
-                        "localhost"
+                        "{{base_url}}"
                     ],
-                    "port": "8080",
                     "path": [
                         "home"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Show Home Page - Page 2",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{jwt_token}}",
+                        "type": "text"
+                    }
+                ],
+                "url": {
+                    "raw": "{{base_url}}/home?page=2",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "home"
+                    ],
+                    "query": [
+                        {
+                            "key": "page",
+                            "value": "2"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Show Home Page - Custom Limit",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{jwt_token}}",
+                        "type": "text"
+                    }
+                ],
+                "url": {
+                    "raw": "{{base_url}}/home?page=1&limit=20",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "home"
+                    ],
+                    "query": [
+                        {
+                            "key": "page",
+                            "value": "1"
+                        },
+                        {
+                            "key": "limit",
+                            "value": "20"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Show Home Page - With Variables",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{jwt_token}}",
+                        "type": "text"
+                    }
+                ],
+                "url": {
+                    "raw": "{{base_url}}/home?page={{page_number}}&limit={{page_limit}}",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "home"
+                    ],
+                    "query": [
+                        {
+                            "key": "page",
+                            "value": "{{page_number}}"
+                        },
+                        {
+                            "key": "limit",
+                            "value": "{{page_limit}}"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "name": "My Posts",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{jwt_token}}",
+                        "type": "text"
+                    }
+                ],
+                "url": {
+                    "raw": "{{base_url}}/myPosts",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "myPosts"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "My Posts - With Pagination",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{jwt_token}}",
+                        "type": "text"
+                    }
+                ],
+                "url": {
+                    "raw": "{{base_url}}/myPosts?page={{page_number}}&limit={{page_limit}}",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "myPosts"
+                    ],
+                    "query": [
+                        {
+                            "key": "page",
+                            "value": "{{page_number}}"
+                        },
+                        {
+                            "key": "limit",
+                            "value": "{{page_limit}}"
+                        }
                     ]
                 }
             }
@@ -279,12 +432,10 @@
                     }
                 ],
                 "url": {
-                    "raw": "http://localhost:8080/post/comments?postId=1",
-                    "protocol": "http",
+                    "raw": "{{base_url}}/post/comments?postId={{post_id}}",
                     "host": [
-                        "localhost"
+                        "{{base_url}}"
                     ],
-                    "port": "8080",
                     "path": [
                         "post",
                         "comments"
@@ -292,7 +443,7 @@
                     "query": [
                         {
                             "key": "postId",
-                            "value": "1"
+                            "value": "{{post_id}}"
                         }
                     ]
                 }
@@ -315,19 +466,53 @@
                     }
                 ],
                 "url": {
-                    "raw": "http://localhost:8080/follow",
-                    "protocol": "http",
+                    "raw": "{{base_url}}/follow",
                     "host": [
-                        "localhost"
+                        "{{base_url}}"
                     ],
-                    "port": "8080",
                     "path": [
                         "follow"
                     ]
                 },
                 "body": {
                     "mode": "raw",
-                    "raw": "{\n  \"username\": \"user_to_follow\"\n}",
+                    "raw": "{\n  \"username\": \"{{follow_username}}\"\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "name": "Unfollow User",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{jwt_token}}",
+                        "type": "text"
+                    },
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json",
+                        "type": "text"
+                    }
+                ],
+                "url": {
+                    "raw": "{{base_url}}/unfollow",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "unfollow"
+                    ]
+                },
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"username\": \"{{follow_username}}\"\n}",
                     "options": {
                         "raw": {
                             "language": "json"
@@ -348,12 +533,10 @@
                     }
                 ],
                 "url": {
-                    "raw": "http://localhost:8080/followers",
-                    "protocol": "http",
+                    "raw": "{{base_url}}/followers",
                     "host": [
-                        "localhost"
+                        "{{base_url}}"
                     ],
-                    "port": "8080",
                     "path": [
                         "followers"
                     ]
@@ -372,12 +555,10 @@
                     }
                 ],
                 "url": {
-                    "raw": "http://localhost:8080/users",
-                    "protocol": "http",
+                    "raw": "{{base_url}}/users",
                     "host": [
-                        "localhost"
+                        "{{base_url}}"
                     ],
-                    "port": "8080",
                     "path": [
                         "users"
                     ]
@@ -385,11 +566,70 @@
             }
         }
     ],
-    
     "variable": [
         {
             "key": "jwt_token",
             "value": "your_jwt_token_here"
+        },
+        {
+            "key": "base_url",
+            "value": "http://localhost:8080"
+        },
+        {
+            "key": "page_number",
+            "value": "1"
+        },
+        {
+            "key": "page_limit",
+            "value": "10"
+        },
+        {
+            "key": "test_username",
+            "value": "test_user"
+        },
+        {
+            "key": "test_password",
+            "value": "test_password"
+        },
+        {
+            "key": "test_email",
+            "value": "test@example.com"
+        },
+        {
+            "key": "test_age",
+            "value": "25"
+        },
+        {
+            "key": "test_bio",
+            "value": "Test user bio"
+        },
+        {
+            "key": "post_caption",
+            "value": "My new post"
+        },
+        {
+            "key": "post_url",
+            "value": "https://example.com/image.jpg"
+        },
+        {
+            "key": "post_id",
+            "value": "1"
+        },
+        {
+            "key": "comment_id",
+            "value": "1"
+        },
+        {
+            "key": "comment_text",
+            "value": "Great post!"
+        },
+        {
+            "key": "reply_text",
+            "value": "Reply to comment"
+        },
+        {
+            "key": "follow_username",
+            "value": "user_to_follow"
         }
     ]
 }

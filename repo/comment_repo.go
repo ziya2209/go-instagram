@@ -44,11 +44,16 @@ func (r *gormCommentRepo) Delete(id int) error {
 }
 
 func (r *gormCommentRepo) GetByPostId(postId int) ([]CommentTree, error) {
-	// Get all comments for this post (root level comments)
-	rootComments, err := r.GetByTypeAndIds("post", []int{postId})
+	fmt.Printf("GetByPostId called with postId: %d\n", postId)
+
+	// Get all comments for this post (root level comments) with usernames
+	rootComments, err := r.getByTypeAndIdsWithUsernames("post", []int{postId})
 	if err != nil {
+		fmt.Printf("Error getting root comments: %v\n", err)
 		return nil, err
 	}
+
+	fmt.Printf("Found %d root comments\n", len(rootComments))
 
 	// If no root comments, return empty slice
 	if len(rootComments) == 0 {
@@ -58,6 +63,7 @@ func (r *gormCommentRepo) GetByPostId(postId int) ([]CommentTree, error) {
 	// Create root nodes
 	var roots []CommentTree
 	for _, com := range rootComments {
+		fmt.Printf("Creating root node for comment ID %d, username: %s\n", com.Id, com.Username)
 		roots = append(roots, CommentTree{
 			Comment: com,
 		})
@@ -71,7 +77,7 @@ func (r *gormCommentRepo) GetByPostId(postId int) ([]CommentTree, error) {
 	processedIds := make(map[int]bool) // Prevent infinite loops
 
 	for len(currentLevelComments) > 0 {
-		var nextLevelComments []models.Comment
+		var nextLevelComments []CommentWithUser
 
 		// Get comment IDs for the current level
 		var currentIds []int
@@ -89,11 +95,13 @@ func (r *gormCommentRepo) GetByPostId(postId int) ([]CommentTree, error) {
 			break
 		}
 
-		// Get all replies to the current level comments
-		replies, err := r.GetByTypeAndIds("comment", currentIds)
+		// Get all replies to the current level comments with usernames
+		replies, err := r.getByTypeAndIdsWithUsernames("comment", currentIds)
 		if err != nil {
 			return nil, err
 		}
+
+		fmt.Printf("Found %d replies for current level\n", len(replies))
 
 		// Group replies by their parent_id
 		for _, reply := range replies {
@@ -111,6 +119,7 @@ func (r *gormCommentRepo) GetByPostId(postId int) ([]CommentTree, error) {
 		buildCommentTree(&roots[i], childrenMap)
 	}
 
+	fmt.Printf("Returning %d comment trees\n", len(roots))
 	return roots, nil
 }
 
@@ -128,8 +137,43 @@ func buildCommentTree(node *CommentTree, childrenMap map[int][]CommentTree) {
 }
 
 type CommentTree struct {
-	Comment  models.Comment
-	Children []CommentTree
+	Comment  CommentWithUser `json:"comment"`
+	Children []CommentTree   `json:"children"`
+}
+
+type CommentWithUser struct {
+	Id         int    `json:"id"`
+	ParentId   int    `json:"parent_id"`
+	ParentType string `json:"parent_type"`
+	UserId     int    `json:"user_id"`
+	Username   string `json:"username"`
+	Message    string `json:"message"`
+	CreatedAt  string `json:"created_at"`
+	UpdatedAt  string `json:"updated_at"`
+}
+
+func (r *gormCommentRepo) getByTypeAndIdsWithUsernames(parentType string, ids []int) ([]CommentWithUser, error) {
+	var results []CommentWithUser
+
+	query := `
+		SELECT c.id, c.parent_id, c.parent_type, c.user_id, u.username, c.message, c.created_at, c.updated_at
+		FROM comments c
+		JOIN users u ON c.user_id = u.id
+		WHERE c.parent_type = ? AND c.parent_id IN ?
+		ORDER BY c.created_at ASC
+	`
+
+	if err := r.db.Raw(query, parentType, ids).Scan(&results).Error; err != nil {
+		return nil, err
+	}
+
+	// Debug log to see what we're getting
+	fmt.Printf("GetByTypeAndIdsWithUsernames returning %d results\n", len(results))
+	for i, result := range results {
+		fmt.Printf("Result %d: ID=%d, Username=%s, Message=%s\n", i, result.Id, result.Username, result.Message)
+	}
+
+	return results, nil
 }
 
 func (ct CommentTree) PrintIndent() {
@@ -148,12 +192,4 @@ func (ct CommentTree) printWithIndent(level int) {
 	for _, child := range ct.Children {
 		child.printWithIndent(level + 1)
 	}
-}
-
-func (r *gormCommentRepo) GetByTypeAndIds(parentType string, ids []int) ([]models.Comment, error) {
-	var comments []models.Comment
-	if err := r.db.Where("parent_type = ? AND parent_id IN ?", parentType, ids).Find(&comments).Error; err != nil {
-		return nil, err
-	}
-	return comments, nil
 }
