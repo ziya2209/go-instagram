@@ -115,6 +115,3 @@ func (h *instaHandler) CreateAcc(w http.ResponseWriter, r *http.Request) {
 		"userId":  user.Id,
 	})
 }
-
-// Placeholder implementations for other required methods
-func (h *instaHandler) ShowHomePage(w http.ResponseWriter, r *http.Request) {}
